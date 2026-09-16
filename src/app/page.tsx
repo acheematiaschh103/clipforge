@@ -116,6 +116,7 @@ export default function Home() {
   const [generating, setGenerating] = useState(false);
   const [results, setResults] = useState<GeneratedContent | null>(null);
   const [copiedCard, setCopiedCard] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const canGenerate = transcript.trim().length > 0 && !generating;
 
@@ -125,6 +126,7 @@ export default function Home() {
   if (!transcript.trim() || generating) return;
 
   setGenerating(true);
+  setError(null);
 
   try {
     const response = await fetch("/api/generate", {
@@ -139,7 +141,8 @@ export default function Home() {
     });
 
     if (!response.ok) {
-      throw new Error("Generation failed");
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Generation failed");
     }
 
     const data = await response.json();
@@ -152,6 +155,11 @@ export default function Home() {
     });
   } catch (error) {
     console.error("Generate error:", error);
+    setError(
+      error instanceof Error
+        ? error.message
+        : "Something went wrong. Please try again."
+    );
   } finally {
     setGenerating(false);
   }
@@ -241,6 +249,11 @@ export default function Home() {
           >
             {generating ? "Generating..." : "Generate content"}
           </button>
+          {error && (
+  <p className="mt-3 text-sm text-red-400">
+    {error}
+  </p>
+)}
         </form>
 
         <section className="mt-14">
