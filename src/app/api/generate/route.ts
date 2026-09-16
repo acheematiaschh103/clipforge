@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const { transcript, platform } = await request.json();
-
+    const { transcript, platform, contentStyle } = await request.json();
     if (!transcript?.trim()) {
       return NextResponse.json(
         { error: "Transcript is required" },
@@ -26,6 +25,16 @@ You are ClipForge, an expert short-form content strategist and viral video edito
 Your job is to analyze a long-form transcript and transform its strongest moments into high-retention short-form content specifically for ${platform}.
 
 TRANSCRIPT:
+CONTENT STYLE:
+${contentStyle || "Viral"}
+
+Adapt the entire output to this content style:
+- Viral: prioritize scroll-stopping hooks, curiosity, tension, and retention.
+- Educational: prioritize clarity, useful insights, actionable lessons, and easy-to-follow explanations.
+- Storytelling: prioritize narrative, emotion, conflict, progression, and satisfying payoff.
+- Sales: prioritize the problem, desire, benefits, objections, and persuasive messaging without sounding spammy.
+
+Every hook, clip idea, caption, and script must reflect the selected content style.
 ${transcript}
 
 First, deeply analyze the transcript internally. Identify:

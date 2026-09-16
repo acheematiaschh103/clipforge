@@ -113,6 +113,7 @@ function formatList(items: string[]) {
 export default function Home() {
   const [transcript, setTranscript] = useState("");
   const [platform, setPlatform] = useState<Platform>("TikTok");
+  const [contentStyle, setContentStyle] = useState("Viral");
   const [generating, setGenerating] = useState(false);
   const [results, setResults] = useState<GeneratedContent | null>(null);
   const [copiedCard, setCopiedCard] = useState<string | null>(null);
@@ -137,6 +138,7 @@ export default function Home() {
       body: JSON.stringify({
         transcript,
         platform,
+        contentStyle,
       }),
     });
 
@@ -241,7 +243,29 @@ export default function Home() {
               })}
             </div>
           </div>
+          <div>
+  <p className="mb-2 text-sm font-medium text-zinc-300">Content style</p>
+  <div className="flex flex-wrap gap-2">
+    {["Viral", "Educational", "Storytelling", "Sales"].map((style) => {
+      const selected = contentStyle === style;
 
+      return (
+        <button
+          key={style}
+          type="button"
+          onClick={() => setContentStyle(style)}
+          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+            selected
+              ? "bg-zinc-100 text-zinc-950"
+              : "border border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+          }`}
+        >
+          {style}
+        </button>
+      );
+    })}
+  </div>
+</div>
           <button
             type="submit"
             disabled={!canGenerate}
