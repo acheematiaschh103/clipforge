@@ -219,13 +219,18 @@ export default function Home() {
               id="transcript"
               name="transcript"
               rows={10}
+              maxLength={20000}
               value={transcript}
               onChange={(event) => setTranscript(event.target.value)}
               placeholder="Paste your YouTube video, podcast, or stream transcript here..."
               className="w-full resize-y rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-sm leading-6 text-zinc-100 placeholder:text-zinc-500 outline-none transition focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600"
             />
-            <p className="mt-2 text-xs text-zinc-500">
-              {transcript.length} characters
+            <p
+  className={`mt-2 text-xs ${
+    transcript.length >= 18000 ? "text-amber-400" : "text-zinc-500"
+  }`}
+>
+            {transcript.length.toLocaleString()} / 20,000 characters
             </p>
           </div>
 
