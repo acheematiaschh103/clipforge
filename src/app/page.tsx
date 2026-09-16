@@ -125,6 +125,10 @@ export default function Home() {
   event.preventDefault();
 
   if (!transcript.trim() || generating) return;
+  if (transcript.length > 20000) {
+    setError("Transcript is too long. Please keep it under 20,000 characters.");
+    return;
+  }
 
   setGenerating(true);
   setError(null);
@@ -158,9 +162,9 @@ export default function Home() {
   } catch (error) {
     console.error("Generate error:", error);
     setError(
-      error instanceof Error
+      error instanceof Error && error.message !== "Gemini request failed"
         ? error.message
-        : "Something went wrong. Please try again."
+        : "AI generation is temporarily unavailable. Please try again in a moment."
     );
   } finally {
     setGenerating(false);

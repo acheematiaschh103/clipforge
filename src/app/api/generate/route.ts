@@ -9,7 +9,12 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
+    if (transcript.length > 20000) {
+      return NextResponse.json(
+        { error: "Transcript is too long. Maximum length is 20,000 characters." },
+        { status: 400 }
+      );
+    }
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
