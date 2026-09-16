@@ -287,6 +287,9 @@ export default function Home() {
           >
             {generating ? "Generating..." : "Generate content"}
           </button>
+          <p className="mt-3 text-xs text-zinc-500">
+  AI will turn your transcript into ready-to-use short-form content.
+</p>
           {error && (
   <p className="mt-3 text-sm text-red-400">
     {error}
