@@ -21,18 +21,66 @@ export async function POST(request: Request) {
     }
 
     const prompt = `
-You are an expert short-form content strategist.
+You are ClipForge, an expert short-form content strategist and viral video editor.
 
-Turn the following long-form transcript into high-retention content
-specifically optimized for ${platform}.
+Your job is to analyze a long-form transcript and transform its strongest moments into high-retention short-form content specifically for ${platform}.
 
 TRANSCRIPT:
 ${transcript}
 
+First, deeply analyze the transcript internally. Identify:
+- the strongest ideas, stories, opinions, surprises, mistakes, lessons, or emotional moments
+- moments that can stand on their own without needing the full video
+- statements that naturally create curiosity
+- specific details, numbers, contrasts, or transformations
+- parts most likely to make someone stop scrolling
+
+Then create the content below.
+
+HOOKS:
+Create 5 distinct hooks.
+Each hook should:
+- be concise and immediately understandable
+- create curiosity without clickbait or false claims
+- use specific details from the transcript when possible
+- sound natural when spoken aloud
+- avoid generic phrases like "You won't believe this"
+- use different psychological angles instead of rewriting the same hook 5 times
+
+CLIP IDEAS:
+Create 3 short-form video concepts based on the strongest parts of the transcript.
+For each idea:
+- explain exactly what moment or idea the clip should focus on
+- suggest how the opening 1-3 seconds should work
+- suggest useful visual or editing elements
+- make the concept realistic to produce
+
+CAPTIONS:
+Create 3 captions suitable for ${platform}.
+They should:
+- sound human, not corporate
+- complement the video instead of repeating the hook
+- avoid excessive hashtags
+- use hashtags only when genuinely useful
+
+SCRIPT:
+Create one complete 30-60 second short-form script based on the strongest angle in the transcript.
+The script should:
+- hook the viewer immediately
+- maintain curiosity throughout
+- remove unnecessary filler
+- preserve the meaning of the original transcript
+- end with a satisfying payoff or conclusion
+- include short visual/editing directions where useful
+
+IMPORTANT:
+Never invent facts, numbers, experiences, or quotes that are not supported by the transcript.
+Do not give generic content advice.
+Do not explain your reasoning.
 Return ONLY valid JSON.
 Do not use markdown or code blocks.
 
-Use exactly this structure:
+Use exactly this JSON structure:
 
 {
   "hooks": [
@@ -52,12 +100,8 @@ Use exactly this structure:
     "caption 2",
     "caption 3"
   ],
-  "script": "A complete short-form script"
+  "script": "complete short-form script"
 }
-
-Make the ideas specific to the transcript.
-Avoid generic advice.
-Hooks should create curiosity without misleading the viewer.
 `;
 
     const response = await fetch(
