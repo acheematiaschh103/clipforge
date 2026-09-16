@@ -196,10 +196,15 @@ export default function Home() {
             One video. A week of content.
           </h1>
           <p className="mt-4 text-base leading-7 text-zinc-400 sm:text-lg">
-            Paste a transcript from a YouTube video, podcast, or stream. ClipForge
-            turns it into short-form ideas for TikTok, Instagram Reels, and
-            YouTube Shorts.
-          </p>
+  Turn any long-form video into scroll-stopping hooks, clip ideas,
+  captions, and ready-to-record scripts for TikTok, Reels, and Shorts —
+  in seconds.
+</p>
+<div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-zinc-500">
+  <span>✓ AI-powered</span>
+  <span>✓ Ready in seconds</span>
+  <span>✓ TikTok, Reels & Shorts</span>
+</div>
         </section>
 
         <form className="mt-10 space-y-6" onSubmit={handleGenerate}>
@@ -284,6 +289,7 @@ export default function Home() {
 )}
         </form>
 
+        {results && (
         <section className="mt-14">
           <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-500">
             Results
@@ -362,6 +368,7 @@ export default function Home() {
             </ResultCard>
           </div>
         </section>
+        )}
       </main>
     </div>
   );
