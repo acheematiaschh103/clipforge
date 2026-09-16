@@ -112,6 +112,8 @@ function formatList(items: string[]) {
 
 export default function Home() {
   const [transcript, setTranscript] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+const [fetchingTranscript, setFetchingTranscript] = useState(false);
   const [platform, setPlatform] = useState<Platform>("TikTok");
   const [generating, setGenerating] = useState(false);
   const [results, setResults] = useState<GeneratedContent | null>(null);
@@ -119,6 +121,42 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   const canGenerate = transcript.trim().length > 0 && !generating;
+  async function handleFetchTranscript() {
+    if (!youtubeUrl.trim() || fetchingTranscript) return;
+  
+    setFetchingTranscript(true);
+    setError(null);
+  
+    try {
+      const response = await fetch("/api/transcript", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: youtubeUrl,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch transcript");
+      }
+  
+      setTranscript(data.transcript);
+    } catch (error) {
+      console.error("Transcript error:", error);
+  
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch transcript"
+      );
+    } finally {
+      setFetchingTranscript(false);
+    }
+  }
 
   async function handleGenerate(event: React.FormEvent<HTMLFormElement>) {
   event.preventDefault();
@@ -197,6 +235,34 @@ export default function Home() {
         </section>
 
         <form className="mt-10 space-y-6" onSubmit={handleGenerate}>
+        <div>
+  <label
+    htmlFor="youtubeUrl"
+    className="mb-2 block text-sm font-medium text-zinc-300"
+  >
+    YouTube URL
+  </label>
+
+  <div className="flex gap-3">
+    <input
+      id="youtubeUrl"
+      type="url"
+      value={youtubeUrl}
+      onChange={(event) => setYoutubeUrl(event.target.value)}
+      placeholder="https://www.youtube.com/watch?v=..."
+      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-sm text-white outline-none"
+    />
+
+    <button
+      type="button"
+      onClick={handleFetchTranscript}
+      disabled={!youtubeUrl.trim() || fetchingTranscript}
+      className="whitespace-nowrap rounded-xl bg-white px-5 py-3 text-sm font-medium text-black disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      {fetchingTranscript ? "Fetching..." : "Get transcript"}
+    </button>
+  </div>
+</div>
           <div>
             <label
               htmlFor="transcript"
