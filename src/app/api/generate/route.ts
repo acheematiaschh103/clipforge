@@ -1,7 +1,32 @@
 import { NextResponse } from "next/server";
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+const RATE_LIMIT = 10;
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000;
 
 export async function POST(request: Request) {
   try {
+    const forwardedFor = request.headers.get("x-forwarded-for");
+const ip = forwardedFor?.split(",")[0]?.trim() || "unknown";
+
+const now = Date.now();
+const current = rateLimitMap.get(ip);
+
+if (!current || now > current.resetTime) {
+  rateLimitMap.set(ip, {
+    count: 1,
+    resetTime: now + RATE_LIMIT_WINDOW,
+  });
+} else {
+  if (current.count >= RATE_LIMIT) {
+    return NextResponse.json(
+      { error: "Generation limit reached. Please try again later." },
+      { status: 429 }
+    );
+  }
+
+  current.count += 1;
+}
     const { transcript, platform, contentStyle } = await request.json();
     if (!transcript?.trim()) {
       return NextResponse.json(
@@ -29,7 +54,7 @@ You are ClipForge, an expert short-form content strategist and viral video edito
 
 Your job is to analyze a long-form transcript and transform its strongest moments into high-retention short-form content specifically for ${platform}.
 
-TRANSCRIPT:
+
 CONTENT STYLE:
 ${contentStyle || "Viral"}
 
@@ -40,6 +65,8 @@ Adapt the entire output to this content style:
 - Sales: prioritize the problem, desire, benefits, objections, and persuasive messaging without sounding spammy.
 
 Every hook, clip idea, caption, and script must reflect the selected content style.
+
+TRANSCRIPT:
 ${transcript}
 
 First, deeply analyze the transcript internally. Identify:
@@ -118,25 +145,38 @@ Use exactly this JSON structure:
 }
 `;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: prompt }],
-            },
-          ],
-          generationConfig: {
-            responseMimeType: "application/json",
+let response: Response | null = null;
+
+for (let attempt = 1; attempt <= 3; attempt++) {
+  response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [{ text: prompt }],
           },
-        }),
-      }
-    );
+        ],
+        generationConfig: {
+          responseMimeType: "application/json",
+        },
+      }),
+    }
+  );
+
+  if (response.status !== 503 || attempt === 3) {
+    break;
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
+}
+if (!response) {
+  throw new Error("Gemini did not return a response");
+}
 
     if (!response.ok) {
       const error = await response.text();
