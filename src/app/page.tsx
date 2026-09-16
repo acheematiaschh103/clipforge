@@ -286,7 +286,7 @@ export default function Home() {
           </h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <ResultCard
-              title="Viral hooks"
+              title={`${contentStyle} hooks`}
               copied={copiedCard === "hooks"}
               onCopy={() =>
                 results && copyText("hooks", formatList(results.hooks))
